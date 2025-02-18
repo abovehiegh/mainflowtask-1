@@ -1,0 +1,291 @@
+# Importing necessary libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# 1. Data Loading
+# Load the dataset
+df = pd.read_csv("/content/student-mat.csv", delimiter=';')
+
+# Display the first few rows to confirm the dataset is loaded correctly
+print("First few rows of the dataset:")
+print(df.head())
+
+# Check for missing values
+print("\nMissing values in the dataset:")
+print(df.isnull().sum())
+
+# Display column data types
+print("\nColumn data types:")
+print(df.dtypes)
+
+# Understand the dataset size
+print("\nDataset size (rows, columns):", df.shape)
+
+# Cleaning and analysis tasks continue as before
+# Example: Average score in math (G3)
+average_g3 = df['G3'].mean()
+print("\nAverage final grade (G3):", average_g3)
+
+# Display the first few rows
+print("First few rows of the dataset:")
+print(df.head())
+
+# 2. Data Exploration
+# Check for missing values
+print("\nMissing values in the dataset:")
+print(df.isnull().sum())
+
+# Display column data types
+print("\nColumn data types:")
+print(df.dtypes)
+
+# Understand the dataset size
+print("\nDataset size (rows, columns):", df.shape)
+
+# 3. Data Cleaning
+# Handle missing values by replacing with median
+df.fillna(df.median(numeric_only=True), inplace=True)
+
+# Remove duplicate entries
+df.drop_duplicates(inplace=True)
+
+# 4. Data Analysis Questions
+# 1. Average score in math (G3)
+average_g3 = df['G3'].mean()
+print("\nAverage final grade (G3):", average_g3)
+
+# 2. Number of students scoring above 15 in G3
+above_15_count = df[df['G3'] > 15].shape[0]
+print("Number of students scoring above 15 in G3:", above_15_count)
+
+# 3. Correlation between study time and G3
+correlation = df['studytime'].corr(df['G3'])
+print("Correlation between study time and G3:", correlation)
+
+# 4. Gender with higher average G3
+average_g3_by_gender = df.groupby('sex')['G3'].mean()
+print("\nAverage G3 by gender:")
+print(average_g3_by_gender)
+
+# 5. Data Visualization
+# 1. Histogram of final grades (G3)
+plt.figure(figsize=(8, 5))
+plt.hist(df['G3'], bins=10, color='skyblue', edgecolor='black')
+plt.title("Distribution of Final Grades (G3)")
+plt.xlabel("Final Grade (G3)")
+plt.ylabel("Frequency")
+plt.show()
+
+# 2. Scatter plot between study time and G3
+plt.figure(figsize=(8, 5))
+plt.scatter(df['studytime'], df['G3'], color='purple', alpha=0.7)
+plt.title("Study Time vs Final Grade (G3)")
+plt.xlabel("Study Time (hours per week)")
+plt.ylabel("Final Grade (G3)")
+plt.show()
+
+# 3. Bar chart comparing average G3 scores of male and female students
+plt.figure(figsize=(8, 5))
+average_g3_by_gender.plot(kind='bar', color=['blue', 'pink'])
+plt.title("Average Final Grade (G3) by Gender")
+plt.ylabel("Average Final Grade (G3)")
+plt.xticks(rotation=0)
+plt.show()
+
+
+First few rows of the dataset:
+  school sex  age address famsize Pstatus  Medu  Fedu     Mjob      Fjob  ...  \
+0     GP   F   18       U     GT3       A     4     4  at_home   teacher  ...   
+1     GP   F   17       U     GT3       T     1     1  at_home     other  ...   
+2     GP   F   15       U     LE3       T     1     1  at_home     other  ...   
+3     GP   F   15       U     GT3       T     4     2   health  services  ...   
+4     GP   F   16       U     GT3       T     3     3    other     other  ...   
+
+  famrel freetime  goout  Dalc  Walc health absences  G1  G2  G3  
+0      4        3      4     1     1      3        6   5   6   6  
+1      5        3      3     1     1      3        4   5   5   6  
+2      4        3      2     2     3      3       10   7   8  10  
+3      3        2      2     1     1      5        2  15  14  15  
+4      4        3      2     1     2      5        4   6  10  10  
+
+[5 rows x 33 columns]
+
+Missing values in the dataset:
+school        0
+sex           0
+age           0
+address       0
+famsize       0
+Pstatus       0
+Medu          0
+Fedu          0
+Mjob          0
+Fjob          0
+reason        0
+guardian      0
+traveltime    0
+studytime     0
+failures      0
+schoolsup     0
+famsup        0
+paid          0
+activities    0
+nursery       0
+higher        0
+internet      0
+romantic      0
+famrel        0
+freetime      0
+goout         0
+Dalc          0
+Walc          0
+health        0
+absences      0
+G1            0
+G2            0
+G3            0
+dtype: int64
+
+Column data types:
+school        object
+sex           object
+age            int64
+address       object
+famsize       object
+Pstatus       object
+Medu           int64
+Fedu           int64
+Mjob          object
+Fjob          object
+reason        object
+guardian      object
+traveltime     int64
+studytime      int64
+failures       int64
+schoolsup     object
+famsup        object
+paid          object
+activities    object
+nursery       object
+higher        object
+internet      object
+romantic      object
+famrel         int64
+freetime       int64
+goout          int64
+Dalc           int64
+Walc           int64
+health         int64
+absences       int64
+G1             int64
+G2             int64
+G3             int64
+dtype: object
+
+Dataset size (rows, columns): (395, 33)
+
+Average final grade (G3): 10.415189873417722
+First few rows of the dataset:
+  school sex  age address famsize Pstatus  Medu  Fedu     Mjob      Fjob  ...  \
+0     GP   F   18       U     GT3       A     4     4  at_home   teacher  ...   
+1     GP   F   17       U     GT3       T     1     1  at_home     other  ...   
+2     GP   F   15       U     LE3       T     1     1  at_home     other  ...   
+3     GP   F   15       U     GT3       T     4     2   health  services  ...   
+4     GP   F   16       U     GT3       T     3     3    other     other  ...   
+
+  famrel freetime  goout  Dalc  Walc health absences  G1  G2  G3  
+0      4        3      4     1     1      3        6   5   6   6  
+1      5        3      3     1     1      3        4   5   5   6  
+2      4        3      2     2     3      3       10   7   8  10  
+3      3        2      2     1     1      5        2  15  14  15  
+4      4        3      2     1     2      5        4   6  10  10  
+
+[5 rows x 33 columns]
+
+Missing values in the dataset:
+school        0
+sex           0
+age           0
+address       0
+famsize       0
+Pstatus       0
+Medu          0
+Fedu          0
+Mjob          0
+Fjob          0
+reason        0
+guardian      0
+traveltime    0
+studytime     0
+failures      0
+schoolsup     0
+famsup        0
+paid          0
+activities    0
+nursery       0
+higher        0
+internet      0
+romantic      0
+famrel        0
+freetime      0
+goout         0
+Dalc          0
+Walc          0
+health        0
+absences      0
+G1            0
+G2            0
+G3            0
+dtype: int64
+
+Column data types:
+school        object
+sex           object
+age            int64
+address       object
+famsize       object
+Pstatus       object
+Medu           int64
+Fedu           int64
+Mjob          object
+Fjob          object
+reason        object
+guardian      object
+traveltime     int64
+studytime      int64
+failures       int64
+schoolsup     object
+famsup        object
+paid          object
+activities    object
+nursery       object
+higher        object
+internet      object
+romantic      object
+famrel         int64
+freetime       int64
+goout          int64
+Dalc           int64
+Walc           int64
+health         int64
+absences       int64
+G1             int64
+G2             int64
+G3             int64
+dtype: object
+
+Dataset size (rows, columns): (395, 33)
+
+Average final grade (G3): 10.415189873417722
+Number of students scoring above 15 in G3: 40
+Correlation between study time and G3: 0.09781968965319626
+
+Average G3 by gender:
+sex
+F     9.966346
+M    10.914439
+Name: G3, dtype: float64
+
+
