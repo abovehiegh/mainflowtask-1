@@ -1,0 +1,143 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+
+# 1. Load the dataset
+path = r"/content/Global_Superstore(CSV).csv"  
+df = pd.read_csv(path, sep=",", encoding='latin-1')
+
+# 2. Data Exploration
+print("Dataset Shape:", df.shape)
+print("Data Types:\n", df.dtypes)
+print("Missing Values:\n", df.isnull().sum())
+
+# 3. Data Cleaning
+# Convert 'Order Date' and 'Ship Date' to datetime objects
+df['Order Date'] = pd.to_datetime(df['Order Date'])
+df['Ship Date'] = pd.to_datetime(df['Ship Date'])
+
+# Fill missing values with mean for numerical columns (if any)
+numerical_cols = ['Sales', 'Profit', 'Discount', 'Quantity']
+df[numerical_cols] = df[numerical_cols].fillna(df[numerical_cols].mean())
+
+# Remove duplicates (if any)
+df.drop_duplicates(inplace=True)
+
+# 4. Exploratory Data Analysis (Examples)
+# a. Sales Trend over Time
+plt.figure(figsize=(12, 6))
+df.groupby('Order Date')['Sales'].sum().plot()
+plt.title('Sales Trend Over Time')
+plt.xlabel('Order Date')
+plt.ylabel('Total Sales')
+plt.grid(True)
+plt.show()
+
+# b. Profit vs. Discount
+plt.figure(figsize=(8, 5))
+sns.scatterplot(x=df['Discount'], y=df['Profit'])
+plt.title('Profit vs Discount')
+plt.xlabel('Discount')
+plt.ylabel('Profit')
+plt.show()
+
+# c. Sales Distribution by Region
+plt.figure(figsize=(8, 5))
+sns.barplot(x=df['Region'], y=df['Sales'], estimator=sum, ci=None)
+plt.title('Total Sales by Region')
+plt.xlabel('Region')
+plt.ylabel('Total Sales')
+plt.xticks(rotation=45)
+plt.show()
+
+# 5. Basic Predictive Modeling (Example: Linear Regression)
+# Prepare data for modeling
+X = df[['Profit', 'Discount']]
+y = df['Sales']
+
+# Split data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Train the model
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+# Make predictions
+y_pred = model.predict(X_test)
+
+# Evaluate the model
+mae = mean_absolute_error(y_test, y_pred)
+mse = mean_squared_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+
+print(f'Model Performance:\nMAE: {mae}\nMSE: {mse}\nR2 Score: {r2}')
+
+Dataset Shape: (1000, 24)
+Data Types:
+ ï»¿Row ID           int64
+Order ID           object
+Order Date         object
+Ship Date          object
+Ship Mode          object
+Customer ID        object
+Customer Name      object
+Segment            object
+Postal Code       float64
+City               object
+State              object
+Country            object
+Region             object
+Market             object
+Product ID         object
+Category           object
+Sub-Category       object
+Product Name       object
+Sales             float64
+Quantity            int64
+Discount          float64
+Profit            float64
+Shipping Cost     float64
+Order Priority     object
+dtype: object
+Missing Values:
+ ï»¿Row ID           0
+Order ID            0
+Order Date          0
+Ship Date           0
+Ship Mode           0
+Customer ID         0
+Customer Name       0
+Segment             0
+Postal Code       806
+City                0
+State               0
+Country             0
+Region              0
+Market              0
+Product ID          0
+Category            0
+Sub-Category        0
+Product Name        0
+Sales               0
+Quantity            0
+Discount            0
+Profit              0
+Shipping Cost       0
+Order Priority      0
+dtype: int64
+
+
+<ipython-input-6-e800c6e3012f>:50: FutureWarning: 
+
+The `ci` parameter is deprecated. Use `errorbar=None` for the same effect.
+
+  sns.barplot(x=df['Region'], y=df['Sales'], estimator=sum, ci=None)
+
+Model Performance:
+MAE: 716.749692146541
+MSE: 768263.9714577636
+R2 Score: 0.3931631968113388
