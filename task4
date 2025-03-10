@@ -1,0 +1,130 @@
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split, cross_val_score
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+
+# Load Dataset
+df = pd.read_csv(r"/content/house price.csv")
+
+# Inspect dataset
+print(df.info())
+print(df.describe())
+print(df.isnull().sum())  # Check for missing values
+
+# Define numerical and categorical columns
+numerical_cols = ["SqFt", "Bedrooms", "Bathrooms", "Offers"]
+categorical_cols = ["Brick", "Neighborhood"]
+
+# Handle missing values
+df[numerical_cols] = df[numerical_cols].fillna(df[numerical_cols].median())
+df[categorical_cols] = df[categorical_cols].fillna(df[categorical_cols].mode().iloc[0])
+
+# Define preprocessing pipeline
+preprocessor = ColumnTransformer([
+    ("num", StandardScaler(), numerical_cols),
+    ("cat", OneHotEncoder(drop='first', handle_unknown='ignore'), categorical_cols)
+])
+
+# Define features and target variable
+X = df.drop(columns=["Price", "Home"])  # 'Home' is assumed to be an index column
+y = df["Price"]
+
+# Split dataset
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Create a pipeline with preprocessing and model
+model = Pipeline([
+    ("preprocessor", preprocessor),
+    ("regressor", LinearRegression())
+])
+
+# Train model
+model.fit(X_train, y_train)
+
+# Make predictions
+y_pred = model.predict(X_test)
+
+# Model evaluation
+rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+r2 = r2_score(y_test, y_pred)
+
+print(f"RMSE: {rmse}")
+print(f"R² Score: {r2}")
+
+# Feature Importance Extraction
+coefficients = model.named_steps["regressor"].coef_
+feature_names = preprocessor.get_feature_names_out()
+feature_importance = pd.DataFrame({'Feature': feature_names, 'Coefficient': coefficients})
+feature_importance = feature_importance.sort_values(by='Coefficient', ascending=False)
+print(feature_importance)
+
+# Visualization - Predicted vs Actual Prices
+plt.figure(figsize=(8, 5))
+sns.scatterplot(x=y_test, y=y_pred, alpha=0.7)
+plt.xlabel("Actual Prices")
+plt.ylabel("Predicted Prices")
+plt.title("Actual vs Predicted House Prices")
+plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], color='red', linestyle="--")
+plt.show()
+
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 128 entries, 0 to 127
+Data columns (total 8 columns):
+ #   Column        Non-Null Count  Dtype 
+---  ------        --------------  ----- 
+ 0   Home          128 non-null    int64 
+ 1   Price         128 non-null    int64 
+ 2   SqFt          128 non-null    int64 
+ 3   Bedrooms      128 non-null    int64 
+ 4   Bathrooms     128 non-null    int64 
+ 5   Offers        128 non-null    int64 
+ 6   Brick         128 non-null    object
+ 7   Neighborhood  128 non-null    object
+dtypes: int64(6), object(2)
+memory usage: 8.1+ KB
+None
+             Home          Price         SqFt    Bedrooms   Bathrooms  \
+count  128.000000     128.000000   128.000000  128.000000  128.000000   
+mean    64.500000  130427.343750  2000.937500    3.023438    2.445312   
+std     37.094474   26868.770371   211.572431    0.725951    0.514492   
+min      1.000000   69100.000000  1450.000000    2.000000    2.000000   
+25%     32.750000  111325.000000  1880.000000    3.000000    2.000000   
+50%     64.500000  125950.000000  2000.000000    3.000000    2.000000   
+75%     96.250000  148250.000000  2140.000000    3.000000    3.000000   
+max    128.000000  211200.000000  2590.000000    5.000000    4.000000   
+
+           Offers  
+count  128.000000  
+mean     2.578125  
+std      1.069324  
+min      1.000000  
+25%      2.000000  
+50%      3.000000  
+75%      3.000000  
+max      6.000000  
+Home            0
+Price           0
+SqFt            0
+Bedrooms        0
+Bathrooms       0
+Offers          0
+Brick           0
+Neighborhood    0
+dtype: int64
+RMSE: 10685.055847048188
+R² Score: 0.806293462223213
+                   Feature   Coefficient
+6   cat__Neighborhood_West  22087.495193
+4           cat__Brick_Yes  16781.709101
+0                num__SqFt  12163.184747
+2           num__Bathrooms   3613.944676
+1            num__Bedrooms   2676.640111
+5  cat__Neighborhood_North   1469.269051
+3              num__Offers  -9531.331691
+
